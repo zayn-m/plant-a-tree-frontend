@@ -1,5 +1,5 @@
-import React, { useContext, useState } from "react";
-import { Row, Col, Card, Button, Badge } from "react-bootstrap";
+import React, { useContext, useState, useRef } from "react";
+import { Row, Col, Card, Button, Badge, Form } from "react-bootstrap";
 import { FaTimesCircle } from "react-icons/fa";
 import StripeCheckout from 'react-stripe-checkout';
 import Context from "../context/Context";
@@ -8,15 +8,29 @@ import { toast } from "react-toastify";
 import { useHistory } from "react-router-dom";
 
 export default function Cart() {
+  const stripeRef = useRef();
+
+  const [shippingDetails, setShippingDetails] = useState({});
+  const [errors, setErrors] = useState(null);
+
   const history = useHistory();
 
   const {cartItems, setCartItems} = useContext(Context);
 
+  const onChange = e => {
+    const details = {...shippingDetails};
+    details[e.target.name] = e.target.value;
+    setShippingDetails(details);
+  }
+
   const onToken = async (token) => {
+
     try {
       let res = await axios.post('/orders', {
         stripeToken: token.id,
-        cartItemsIds: cartItems.map(item => item.id),  
+        cartItemsIds: cartItems.map(item => item.id),
+        address: shippingDetails.address ?? '',
+        sortCode: shippingDetails.sortCode ?? '',
       });
       
       if (res.data.status === 201) {
@@ -27,6 +41,9 @@ export default function Cart() {
       }
     } catch (error) {
       console.log(error);
+      if (error?.response?.data?.message) {
+        toast.error(error.response.data.message);
+      }
     }
   }
 
@@ -89,6 +106,51 @@ export default function Cart() {
         </Col>
         </div>
         )) : <h4 className="text-danger my-5"><FaTimesCircle/> You have no items in your cart!</h4>}
+          <hr />
+
+          <h2>Shipping Details</h2>
+          <Row className="mt-3">
+          <Form.Group className="mb-3 col-6">
+            <Form.Label>Firstname</Form.Label>
+            <Form.Control
+              type="text"
+              name="firstname"
+              value={shippingDetails.firstname}
+              onChange={onChange}
+            />
+          </Form.Group>
+          <Form.Group className="mb-3 col-6">
+            <Form.Label>Lastname</Form.Label>
+            <Form.Control
+              type="text"
+              name="lastname"
+              value={shippingDetails.lastname}
+              onChange={onChange}
+            />
+          </Form.Group>
+        </Row>
+        <Row>
+          <Form.Group className="mb-3 col-12">
+            <Form.Label>Address line</Form.Label>
+            <Form.Control
+              type="text"
+              name="address"
+              value={shippingDetails.address}
+              onChange={onChange}
+            />
+          </Form.Group>
+        </Row>
+        <Row>
+          <Form.Group className="mb-3 col-3">
+            <Form.Label>Sort code</Form.Label>
+            <Form.Control
+              type="text"
+              name="sortCode"
+              value={shippingDetails.sortCode}
+              onChange={onChange}
+            />
+          </Form.Group>
+        </Row>
         </Col>
         
         <Col md="3" className="d-flex flex-column">
@@ -100,6 +162,7 @@ export default function Cart() {
             }
           </div>
           <StripeCheckout
+            ref={stripeRef}
             name="Plant A Tree"
             currency="GBP"
             token={onToken}

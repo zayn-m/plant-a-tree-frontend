@@ -32,6 +32,8 @@ export default function Order() {
             <th>ID</th>
             <th>Date</th>
             <th>Total Price</th>
+            <th>Address</th>
+            <th>Sort Code</th>
           </tr>
         </thead>
         <tbody>
@@ -40,6 +42,8 @@ export default function Order() {
               <td>{order.id}</td>
               <td>{order.createdAt.split('T')[0]}</td>
               <td>£{order.price}</td>
+              <td>{order.address}</td>
+              <td>{order.sortCode}</td>
             </tr>
           ))}
         </tbody>
