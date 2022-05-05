@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const instance = axios.create({
-	// baseURL: 'http://localhost:8080/api'
-	baseUrl: 'https://plantatree-1.herokuapp.com/api'
+	baseURL: 'http://localhost:8080/api'
+	// baseUrl: 'https://plantatree-1.herokuapp.com/api'
 });
 
 instance.interceptors.request.use(
