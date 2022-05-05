@@ -107,7 +107,6 @@ export default function Cart() {
         </div>
         )) : <h4 className="text-danger my-5"><FaTimesCircle/> You have no items in your cart!</h4>}
           <hr />
-
           <h2>Shipping Details</h2>
           <Row className="mt-3">
           <Form.Group className="mb-3 col-6">
@@ -161,19 +160,22 @@ export default function Cart() {
               <h6>20% discount applied for spending over £50</h6>
             }
           </div>
-          <StripeCheckout
-            ref={stripeRef}
-            name="Plant A Tree"
-            currency="GBP"
-            token={onToken}
-            amount={getTotalInCents()}
-            billingAddress={false}
-            zipCode={false}
-            stripeKey="pk_test_51KFhziIOCViZ40O3wmHIkJvLBtOsQddXYoW8w8cIHo9pDLZ3r2yXrCeoRCDR34twv0NtcRX3k0T9g8ucPJGTcaGx00RDkovY8O"
-          />
-          <hr />
-          <p className="mt-3">For test purposes use these details: </p>
-          <p>CARD: 4242 4242 4242 4242 <br /> EXP: 12/25 <br />CVV: 123</p>
+          {cartItems.length ?
+          <React.Fragment>
+            <StripeCheckout
+              ref={stripeRef}
+              name="Plant A Tree"
+              currency="GBP"
+              token={onToken}
+              amount={getTotalInCents()}
+              billingAddress={false}
+              zipCode={false}
+              stripeKey="pk_test_51KFhziIOCViZ40O3wmHIkJvLBtOsQddXYoW8w8cIHo9pDLZ3r2yXrCeoRCDR34twv0NtcRX3k0T9g8ucPJGTcaGx00RDkovY8O"
+            />
+            <hr />
+            <p className="mt-3">For test purposes use these details: </p>
+            <p>CARD: 4242 4242 4242 4242 <br /> EXP: 12/25 <br />CVV: 123</p>
+          </React.Fragment> : null}
           {/* <Button variant="success" disabled={cartItems.length ? false : true}>Proceed to checkout</Button> */}
         </Col>
       </Row>

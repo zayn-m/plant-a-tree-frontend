@@ -1,13 +1,18 @@
-import React, { useContext } from "react";
-import { Container, Nav, NavDropdown, Navbar, Badge } from "react-bootstrap";
+import React, { useContext, useState } from "react";
+import { Container, Nav, NavDropdown, Navbar, Badge, Form, Button, FormControl } from "react-bootstrap";
 import { useHistory } from "react-router-dom";
 import { FaCartPlus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import logo from "../logo.svg";
 import Context from "../context/Context";
+import axios from '../config/axios.config';
 
 export default function BaseNavbar() {
   const { cartItems } = useContext(Context);
+
+  const [search, setSearch] = useState('');
+
+  const history = useHistory();
 
   const checkUser = () => {
     const token = localStorage.getItem("token");
@@ -20,6 +25,24 @@ export default function BaseNavbar() {
     localStorage.removeItem("token");
     window.location.replace("/");
   };
+
+  const searchPlants = (e) => {
+    e.preventDefault();
+    history.push(`/shop?search=${search}`);
+
+    // axios.get(`/plants/search?q=${search}`)
+    //   .then(res => {
+    //     history.push({
+    //       pathname: `/shop`,
+    //       state: {
+    //         data: res.data,
+    //       },
+    //     })
+    //   })
+    //   .catch(err => {
+    //     console.log(err);
+    //   })
+  }
 
   return (
     <Navbar collapseOnSelect expand="lg" bg="success" variant="dark">
@@ -49,6 +72,17 @@ export default function BaseNavbar() {
             </Nav.Link>
           </Nav>
           <Nav>
+          <Form className="d-flex" onSubmit={searchPlants}>
+            <FormControl
+            type="search"
+            placeholder="Search Plants..."
+            className="me-2"
+            aria-label="Search"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            />
+            <Button variant="outline-light" type="submit">Search</Button>
+          </Form>
             {!localStorage.getItem("token") ? (
               <React.Fragment>
                 <Nav.Link>

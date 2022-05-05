@@ -4,24 +4,54 @@ import Loader from "../components/Loader";
 import axios from '../config/axios.config';
 import Context from "../context/Context";
 import { toast } from "react-toastify";
+import { useLocation } from "react-router-dom";
+import { FaSadTear } from "react-icons/fa";
 
 export default function Shop(props) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
   
   const {cartItems, setCartItems} = useContext(Context);
 
+  const location = useLocation();
+
+  const searchParams = new URLSearchParams(window.location.search)
+  const hasSearchParam = searchParams.has('search');
+  
   useEffect(() => {
-    axios.get('/plants').then(res => {
-      if (res.data?.content) {
+    setData([]);
+    setLoading(true);
+    setNotFound(false);
+
+    if (hasSearchParam) {
+      axios.get(`/plants/search?q=${searchParams.get('search')}`).then(res => {
+        if (res.data.length) setData(res.data);
+        else setNotFound(true);
+      }).catch(e => {
+        console.log(e);
+        setNotFound(true);
+      }).finally(() => {
+        setLoading(false);
+      })
+    } else {
+      getPlants();
+    }
+  }, [location.search])
+
+  const getPlants = () => {
+     axios.get('/plants').then(res => {
+      if (res.data?.content.length) {
         setData(res.data.content);
         setLoading(false);
+      } else { 
+        setNotFound(true);
       }
     }).catch(e => {
       console.log(e);
       setLoading(false);
     })
-  }, [])
+  }
 
   const addToCart = async (plantId) => {
     try {
@@ -61,7 +91,11 @@ export default function Shop(props) {
         <h1 className="text-center">Shop Our Plants</h1>
         <Row className="mt-5">
           {loading &&
-          <Loader />}
+            <Loader />}
+
+          {notFound &&
+            <h4 className="text-center my-5">Oops! Seems we don't have what you are looking for <FaSadTear color="#F8C03E" /></h4>
+          }
 
           {data.map(d => (
             <Col xs="12" sm="12" md="3" key={d.id} className="mt-3">
